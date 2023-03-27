@@ -48,121 +48,106 @@ export class AppContainer extends React.Component {
         return 0.2126 * r + 0.7152 * g + 0.0722 * b;
     };
 
-    getPxNumeric = (imageData, x, y) => {
-        var data32 = new Uint32Array(imageData.data.buffer),
-            val32 = data32[y * imageData.width + x],
-            str32,
-            b = 0,
-            g = 0,
-            r = 0;
+    calcGrayscalePixel = (pixel, pixel1, pixel2) => {
+        const absR = Math.abs(Math.abs(pixel.r - pixel1.r) - pixel2.r);
+        const absG = Math.abs(Math.abs(pixel.g - pixel1.g) - pixel2.g);
+        const absB = Math.abs(Math.abs(pixel.b - pixel1.b) - pixel2.b);
 
-        if (val32 > 0) {
-            str32 = val32.toString(16);
-            r = parseInt(str32.substr(0, 2), 16);
-            g = parseInt(str32.substr(2, 2), 16);
-            b = parseInt(str32.substr(4, 2), 16);
-        }
+        const grayscalePixel = this.rgbToGrayscale(absR, absG, absB);
 
-        const result = parseInt((r.toString() + g.toString() + b.toString()));
-
-        return result;
+        return grayscalePixel;
     };
 
-    decimalToRgb(decimal) {
-        return {
-            r: Math.floor(decimal / 1000000) % 1000,
-            g: Math.floor(decimal / 1000) % 1000,
-            b: decimal % 1000,
-        };
-    }
-
     blockCellsBelowThreshhold = async () => {
-        let letters = [...this.state.letters];
-        const height = 1000;
-        const width = Math.round(height * (50 / 65))
-        const padding = 0;
-        const cellPxHeight = (height - (padding * 2)) / 24;
-        const cellPxWidth = (width - (padding * 2)) / 24;
+        return new Promise(async (resolve, reject) => {
+            const imageHtml = document.querySelector(".image");
+            const image1Html = document.querySelector(".image1");
+            const image2Html = document.querySelector(".image2");
 
-        const imageHtml = document.querySelector(".image");
-        const image1Html = document.querySelector(".image1");
-        const image2Html = document.querySelector(".image2");
+            const imageBase64 = await htmlToImage.toPng(imageHtml, { quality: 1 });
+            const image1Base64 = await htmlToImage.toPng(image1Html, { quality: 1 });
+            const image2Base64 = await htmlToImage.toPng(image2Html, { quality: 1 });
 
-        const imageBase64 = await htmlToImage.toPng(imageHtml, { quality: 1 });
-        const image1Base64 = await htmlToImage.toPng(image1Html, { quality: 1 });
-        const image2Base64 = await htmlToImage.toPng(image2Html, { quality: 1 });
+            const imageUrls = [imageBase64, image1Base64, image2Base64];
 
-        const canvas = document.createElement('canvas');
-        const canvas1 = document.createElement('canvas');
-        const canvas2 = document.createElement('canvas');
+            Promise.all(imageUrls.map(e =>
+                new Promise((resolve, reject) => {
+                    const img = new Image();
+                    img.onload = () => resolve(img);
+                    img.onerror = reject;
+                    img.src = e;
+                })
+            )).then((result) => {
+                const image = result[0];
+                const image1 = result[1];
+                const image2 = result[2];
+                let letters = [...this.state.letters];
+                const height = 624;
+                const width = 480;
+                const padding = 0;
+                const cellPxHeight = (height - (padding * 2)) / 24;
+                const cellPxWidth = (width - (padding * 2)) / 24;
 
-        const image = new Image();
-        const image1 = new Image();
-        const image2 = new Image();
+                const canvas = document.createElement('canvas');
+                const canvas1 = document.createElement('canvas');
+                const canvas2 = document.createElement('canvas');
 
-        image.src = imageBase64;
-        image1.src = image1Base64;
-        image2.src = image2Base64;
+                canvas.width = width;
+                canvas.height = height;
 
-        image.onload = () => {
-            image1.onload = () => {
-                image2.onload = () => {
-                    canvas.width = width;
-                    canvas.height = height;
+                canvas1.width = width;
+                canvas1.height = height;
 
-                    canvas1.width = width;
-                    canvas1.height = height;
+                canvas2.width = width;
+                canvas2.height = height;
 
-                    canvas2.width = width;
-                    canvas2.height = height;
+                const context = canvas.getContext('2d');
+                const context1 = canvas1.getContext('2d');
+                const context2 = canvas2.getContext('2d');
 
-                    const context = canvas.getContext('2d');
-                    const context1 = canvas1.getContext('2d');
-                    const context2 = canvas2.getContext('2d');
+                context.drawImage(image, 0, 0, width, height);
+                context1.drawImage(image1, 0, 0, width, height);
+                context2.drawImage(image2, 0, 0, width, height);
 
-                    context.drawImage(image, 0, 0, width, height);
-                    context1.drawImage(image1, 0, 0, width, height);
-                    context2.drawImage(image2, 0, 0, width, height);
+                const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                const imageData1 = context1.getImageData(0, 0, canvas1.width, canvas1.height);
+                const imageData2 = context2.getImageData(0, 0, canvas2.width, canvas2.height);
 
-                    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-                    const imageData1 = context1.getImageData(0, 0, canvas1.width, canvas1.height);
-                    const imageData2 = context2.getImageData(0, 0, canvas2.width, canvas2.height);
+                let currRowPxCount = padding;
+                let currColPxCount = padding;
 
-                    let currRowPxCount = padding;
-                    let currColPxCount = padding;
+                for (let r = 0; r < 24; r++) {
+                    for (let c = 0; c < 24; c++) {
+                        let overThreshold = false;
+                        for (let m = 0; m < Math.round(cellPxWidth); m++) {
+                            for (let n = 0; n < Math.round(cellPxHeight); n++) {
+                                var pixel = this.getPx(imageData, Math.round(currRowPxCount + m), Math.round(currColPxCount + n));
+                                var pixel1 = this.getPx(imageData1, Math.round(currRowPxCount + m), Math.round(currColPxCount + n));
+                                var pixel2 = this.getPx(imageData2, Math.round(currRowPxCount + m), Math.round(currColPxCount + n));
 
-                    for (let r = 0; r < 24; r++) {
-                        for (let c = 0; c < 24; c++) {
-                            let overThreshold = false;
-                            for (let m = 0; m < Math.round(cellPxWidth); m++) {
-                                for (let n = 0; n < Math.round(cellPxHeight); n++) {
-                                    var pixel = this.getPxNumeric(imageData, Math.round(currRowPxCount + m), Math.round(currColPxCount + n));
-                                    var pixel1 = this.getPxNumeric(imageData1, Math.round(currRowPxCount + m), Math.round(currColPxCount + n));
-                                    var pixel2 = this.getPxNumeric(imageData2, Math.round(currRowPxCount + m), Math.round(currColPxCount + n));
+                                const grayscale = this.calcGrayscalePixel(pixel, pixel1, pixel2);
 
-                                    const absPixel = Math.abs(Math.abs(pixel - pixel1) - pixel2);
-                                    const rgbPixel = this.decimalToRgb(absPixel);
-                                    const grayscale = this.rgbToGrayscale(rgbPixel.r, rgbPixel.g, rgbPixel.b);
-
-                                    if (grayscale <= this.state.threshhold) {
-                                        overThreshold = true;
-                                        letters[r][c] = '`';
-                                        break;
-                                    }
-                                }
-                                if (overThreshold) {
+                                if (grayscale <= this.state.threshhold) {
+                                    overThreshold = true;
+                                    letters[r][c] = '`';
                                     break;
                                 }
                             }
-                            currRowPxCount += cellPxWidth;
+                            if (overThreshold) {
+                                break;
+                            }
                         }
-                        currRowPxCount = padding;
-                        currColPxCount += cellPxHeight;
+                        currRowPxCount += cellPxWidth;
                     }
+                    currRowPxCount = padding;
+                    currColPxCount += cellPxHeight;
                 }
-            }
-        }
-        return letters;
+
+                resolve(letters);
+            }).catch(() => {
+                reject();
+            });
+        })
     };
 
     processImage = (base64) => {
