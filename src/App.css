@@ -1,0 +1,13 @@
+.App {
+
+  height:  100%;
+}
+
+.text:hover {
+  cursor: pointer ;
+}
+
+@font-face {
+  font-family: 'Motiva';
+  src: local('Motiva-Regular'), url("./Motiva-Regular.otf") format('otf');
+}
