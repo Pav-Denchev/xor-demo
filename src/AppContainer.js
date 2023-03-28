@@ -48,14 +48,16 @@ export class AppContainer extends React.Component {
         return 0.2126 * r + 0.7152 * g + 0.0722 * b;
     };
 
-    calcGrayscalePixel = (pixel, pixel1, pixel2) => {
+    calcAbsolutePixel = (pixel, pixel1, pixel2) => {
         const absR = Math.abs(Math.abs(pixel.r - pixel1.r) - pixel2.r);
         const absG = Math.abs(Math.abs(pixel.g - pixel1.g) - pixel2.g);
         const absB = Math.abs(Math.abs(pixel.b - pixel1.b) - pixel2.b);
 
-        const grayscalePixel = this.rgbToGrayscale(absR, absG, absB);
-
-        return grayscalePixel;
+        return {
+            r: absR,
+            g: absG,
+            b: absB
+        };
     };
 
     blockCellsBelowThreshhold = async () => {
@@ -115,46 +117,39 @@ export class AppContainer extends React.Component {
 
                 let currRowPxCount = padding;
                 let currColPxCount = padding;
-                // document.body.appendChild(canvas);
-                // document.body.appendChild(canvas1);
-                // document.body.appendChild(canvas2);
-
-                for (let r = 0; r < 24; r++) {
-                    for (let c = 0; c < 24; c++) {
-                        let overThreshold = false;
+                
+                for (let row = 0; row < 24; row++) {
+                    for (let col = 0; col < 24; col++) {
+                        let belowThreshhold = false;
                         for (let m = 0; m < Math.round(cellPxWidth); m++) {
                             for (let n = 0; n < Math.round(cellPxHeight); n++) {
                                 const pixel = this.getPx(imageData, Math.round(currRowPxCount + m), Math.round(currColPxCount + n));
                                 const pixel1 = this.getPx(imageData1, Math.round(currRowPxCount + m), Math.round(currColPxCount + n));
                                 const pixel2 = this.getPx(imageData2, Math.round(currRowPxCount + m), Math.round(currColPxCount + n));
-                                // context.fillStyle = `rgb(
-                                //     ${pixel.r},
-                                //     ${pixel.g},
-                                //     ${pixel.b}
-                                // )`
-                                // context.fillRect(Math.round(currRowPxCount + m), Math.round(currColPxCount + n), 1, 1);
-                                // context1.fillStyle = `rgb(
-                                //     ${pixel1.r},
-                                //     ${pixel1.g},
-                                //     ${pixel1.b}
-                                // )`
-                                // context1.fillRect(Math.round(currRowPxCount + m), Math.round(currColPxCount + n), 1, 1);
-                                // context2.fillStyle = `rgb(
-                                //     ${pixel2.r},
-                                //     ${pixel2.g},
-                                //     ${pixel2.b}
-                                // )`
-                                // context2.fillRect(Math.round(currRowPxCount + m), Math.round(currColPxCount + n), 1, 1);
 
-                                const grayscale = this.calcGrayscalePixel(pixel, pixel1, pixel2);
+                                if ((pixel2.r !== 0 && pixel2.g !== 0 && pixel2.b !== 0) && (pixel2.r !== 255 && pixel2.g !== 255 && pixel2.b !== 255)) {
+                                    if (pixel2.r > 100) {
+                                        pixel2.r = 255;
+                                        pixel2.g = 255;
+                                        pixel2.b = 255;
+                                    } else {
+                                        pixel2.r = 0;
+                                        pixel2.g = 0;
+                                        pixel2.b = 0;
+                                    }
+                                }
+
+                                const absPixel = this.calcAbsolutePixel(pixel, pixel1, pixel2);
+
+                                const grayscale = this.rgbToGrayscale(absPixel.r, absPixel.g, absPixel.b);
 
                                 if (grayscale <= this.state.threshhold) {
-                                    overThreshold = true;
-                                    letters[r][c] = '`';
+                                    belowThreshhold = true;
+                                    letters[row][col] = '`';
                                     break;
                                 }
                             }
-                            if (overThreshold) {
+                            if (belowThreshhold) {
                                 break;
                             }
                         }
