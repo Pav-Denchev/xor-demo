@@ -115,15 +115,36 @@ export class AppContainer extends React.Component {
 
                 let currRowPxCount = padding;
                 let currColPxCount = padding;
+                // document.body.appendChild(canvas);
+                // document.body.appendChild(canvas1);
+                // document.body.appendChild(canvas2);
 
                 for (let r = 0; r < 24; r++) {
                     for (let c = 0; c < 24; c++) {
                         let overThreshold = false;
                         for (let m = 0; m < Math.round(cellPxWidth); m++) {
                             for (let n = 0; n < Math.round(cellPxHeight); n++) {
-                                var pixel = this.getPx(imageData, Math.round(currRowPxCount + m), Math.round(currColPxCount + n));
-                                var pixel1 = this.getPx(imageData1, Math.round(currRowPxCount + m), Math.round(currColPxCount + n));
-                                var pixel2 = this.getPx(imageData2, Math.round(currRowPxCount + m), Math.round(currColPxCount + n));
+                                const pixel = this.getPx(imageData, Math.round(currRowPxCount + m), Math.round(currColPxCount + n));
+                                const pixel1 = this.getPx(imageData1, Math.round(currRowPxCount + m), Math.round(currColPxCount + n));
+                                const pixel2 = this.getPx(imageData2, Math.round(currRowPxCount + m), Math.round(currColPxCount + n));
+                                // context.fillStyle = `rgb(
+                                //     ${pixel.r},
+                                //     ${pixel.g},
+                                //     ${pixel.b}
+                                // )`
+                                // context.fillRect(Math.round(currRowPxCount + m), Math.round(currColPxCount + n), 1, 1);
+                                // context1.fillStyle = `rgb(
+                                //     ${pixel1.r},
+                                //     ${pixel1.g},
+                                //     ${pixel1.b}
+                                // )`
+                                // context1.fillRect(Math.round(currRowPxCount + m), Math.round(currColPxCount + n), 1, 1);
+                                // context2.fillStyle = `rgb(
+                                //     ${pixel2.r},
+                                //     ${pixel2.g},
+                                //     ${pixel2.b}
+                                // )`
+                                // context2.fillRect(Math.round(currRowPxCount + m), Math.round(currColPxCount + n), 1, 1);
 
                                 const grayscale = this.calcGrayscalePixel(pixel, pixel1, pixel2);
 
@@ -210,10 +231,10 @@ export class AppContainer extends React.Component {
 
         if (val32 > 0) {
             str32 = val32.toString(16);
-            r = parseInt(str32.substr(0, 2), 16);
-            g = parseInt(str32.substr(2, 2), 16);
-            b = parseInt(str32.substr(4, 2), 16);
-            a = parseInt(str32.substr(6, 2), 16);
+            a = parseInt(str32.substr(0, 2), 16);
+            b = parseInt(str32.substr(2, 2), 16);
+            g = parseInt(str32.substr(4, 2), 16);
+            r = parseInt(str32.substr(6, 2), 16);
         }
 
         return {
