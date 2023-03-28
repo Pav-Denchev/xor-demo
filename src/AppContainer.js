@@ -84,8 +84,8 @@ export class AppContainer extends React.Component {
                 const image1 = result[1];
                 const image2 = result[2];
                 let letters = [...this.state.letters];
-                const height = 624;
-                const width = 480;
+                const height = 910;
+                const width = 700;
                 const padding = 0;
                 const cellPxHeight = (height - (padding * 2)) / 24;
                 const cellPxWidth = (width - (padding * 2)) / 24;
@@ -120,7 +120,14 @@ export class AppContainer extends React.Component {
                 
                 for (let row = 0; row < 24; row++) {
                     for (let col = 0; col < 24; col++) {
-                        let skipPixel = false;
+                        let belowThreshhold = false;
+                        let darkestPixel = {
+                            row,
+                            col,
+                            x: currRowPxCount,
+                            y: currColPxCount,
+                            grayscale: 255,
+                        };
                         for (let m = 0; m < Math.round(cellPxWidth); m++) {
                             for (let n = 0; n < Math.round(cellPxHeight); n++) {
                                 const pixel2 = this.getPx(imageData2, Math.round(currRowPxCount + m), Math.round(currColPxCount + n));
@@ -132,21 +139,31 @@ export class AppContainer extends React.Component {
                                 const pixel = this.getPx(imageData, Math.round(currRowPxCount + m), Math.round(currColPxCount + n));
                                 const pixel1 = this.getPx(imageData1, Math.round(currRowPxCount + m), Math.round(currColPxCount + n));
 
-
                                 const absPixel = this.calcAbsolutePixel(pixel, pixel1, pixel2);
 
                                 const grayscale = this.rgbToGrayscale(absPixel.r, absPixel.g, absPixel.b);
 
+                                if (grayscale < darkestPixel.grayscale) {
+                                    darkestPixel = {
+                                        row,
+                                        col,
+                                        x: currRowPxCount + m,
+                                        y: currColPxCount + n,
+                                        grayscale
+                                    }
+                                }
+
                                 if (grayscale <= this.state.threshhold) {
-                                    skipPixel = true;
+                                    belowThreshhold = true;
                                     letters[row][col] = '`';
                                     break;
                                 }
                             }
-                            if (skipPixel) {
+                            if (belowThreshhold) {
                                 break;
                             }
                         }
+                        console.log(darkestPixel);
                         currRowPxCount += cellPxWidth;
                     }
                     currRowPxCount = padding;
@@ -305,14 +322,14 @@ export class AppContainer extends React.Component {
 
     render() {
         return (
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: '100%', flexDirection: 'column' }} className="App">
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: 'auto', flexDirection: 'column', paddingTop: '10px', paddingBottom: '10px', }} className="App">
                 <div style={{ marginBottom: '10px' }}>
                     <input type={"file"} id={'imageUpload'} name={'imageUpload'} onChange={this.fileChangedHandler} />
                 </div>
                 <div style={{ display: 'flex' }}>
-                    <div className='image' style={{ width: '480px', height: '624px', position: 'relative' }}>
+                    <div className='image' style={{ width: '1000px', height: '1300px', position: 'relative' }}>
                         <div style={{ width: '100%', height: '100%', position: 'absolute' }}>
-                            <img alt={""} style={{ width: '480px', height: '624px' }} src={this.state.backgroundImage} />
+                            <img alt={""} style={{ width: '1000px', height: '1300px', }} src={this.state.backgroundImage} />
                         </div>
                         <div style={{ width: '100%', height: '100%', position: 'absolute' }}>
                             <div style={{ width: '100%', height: '100%', fontFamily: 'Motiva' }}>
@@ -320,9 +337,9 @@ export class AppContainer extends React.Component {
                             </div>
                         </div>
                     </div>
-                    <div className='image1' style={{ width: '480px', height: '624px', position: 'relative', display: `${this.state.loading ? 'block' : 'none'}` }}>
+                    <div className='image1' style={{ width: '1000px', height: '1300px', position: 'relative', display: `${this.state.loading ? 'block' : 'none'}` }}>
                         <div style={{ width: '100%', height: '100%', position: 'absolute' }}>
-                            <img alt={""} style={{ width: '480px', height: '624px' }} src={this.state.backgroundImage} />
+                            <img alt={""} style={{ width: '1000px', height: '1300px', }} src={this.state.backgroundImage} />
                         </div>
                         <div style={{ width: '100%', height: '100%', position: 'absolute' }}>
                             <div style={{ width: '100%', height: '100%', fontFamily: 'Motiva' }}>
@@ -330,7 +347,7 @@ export class AppContainer extends React.Component {
                             </div>
                         </div>
                     </div>
-                    <div className='image2' style={{ width: '480px', height: '624px', position: 'relative', backgroundColor: 'white', display: `${this.state.loading ? 'block' : 'none'}` }}>
+                    <div className='image2' style={{ width: '1000px', height: '1300px', position: 'relative', backgroundColor: 'white', display: `${this.state.loading ? 'block' : 'none'}` }}>
                         <div style={{ width: '100%', height: '100%', position: 'absolute' }}>
                             <div style={{ width: '100%', height: '100%', fontFamily: 'Motiva' }}>
                                 <TextLayer letters={this.state.letters} brightnessMatrix={this.state.brightnessMatrix} targetBrightness={this.state.targetBrightness} fontLightColor={this.state.fontLightColor} fontDarkColor={this.state.fontDarkColor} />
