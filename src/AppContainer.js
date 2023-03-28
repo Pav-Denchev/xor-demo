@@ -120,36 +120,30 @@ export class AppContainer extends React.Component {
                 
                 for (let row = 0; row < 24; row++) {
                     for (let col = 0; col < 24; col++) {
-                        let belowThreshhold = false;
+                        let skipPixel = false;
                         for (let m = 0; m < Math.round(cellPxWidth); m++) {
                             for (let n = 0; n < Math.round(cellPxHeight); n++) {
-                                const pixel = this.getPx(imageData, Math.round(currRowPxCount + m), Math.round(currColPxCount + n));
-                                const pixel1 = this.getPx(imageData1, Math.round(currRowPxCount + m), Math.round(currColPxCount + n));
                                 const pixel2 = this.getPx(imageData2, Math.round(currRowPxCount + m), Math.round(currColPxCount + n));
 
                                 if ((pixel2.r !== 0 && pixel2.g !== 0 && pixel2.b !== 0) && (pixel2.r !== 255 && pixel2.g !== 255 && pixel2.b !== 255)) {
-                                    if (pixel2.r > 100) {
-                                        pixel2.r = 255;
-                                        pixel2.g = 255;
-                                        pixel2.b = 255;
-                                    } else {
-                                        pixel2.r = 0;
-                                        pixel2.g = 0;
-                                        pixel2.b = 0;
-                                    }
+                                    continue;
                                 }
+
+                                const pixel = this.getPx(imageData, Math.round(currRowPxCount + m), Math.round(currColPxCount + n));
+                                const pixel1 = this.getPx(imageData1, Math.round(currRowPxCount + m), Math.round(currColPxCount + n));
+
 
                                 const absPixel = this.calcAbsolutePixel(pixel, pixel1, pixel2);
 
                                 const grayscale = this.rgbToGrayscale(absPixel.r, absPixel.g, absPixel.b);
 
                                 if (grayscale <= this.state.threshhold) {
-                                    belowThreshhold = true;
+                                    skipPixel = true;
                                     letters[row][col] = '`';
                                     break;
                                 }
                             }
-                            if (belowThreshhold) {
+                            if (skipPixel) {
                                 break;
                             }
                         }
