@@ -8,8 +8,8 @@ self.__precacheManifest = [
     "url": "/xor-demo/static/js/runtime~main.427d0f63.js"
   },
   {
-    "revision": "9c3b2b59dfc0c2fff73f",
-    "url": "/xor-demo/static/js/main.ce74aaeb.chunk.js"
+    "revision": "907f41c4de62a3f20776",
+    "url": "/xor-demo/static/js/main.0f19ff04.chunk.js"
   },
   {
     "revision": "1dfd17ea1ae2264110f1",
@@ -20,11 +20,11 @@ self.__precacheManifest = [
     "url": "/xor-demo/static/js/2.29cefbd0.chunk.js"
   },
   {
-    "revision": "9c3b2b59dfc0c2fff73f",
+    "revision": "907f41c4de62a3f20776",
     "url": "/xor-demo/static/css/main.d4e8dd66.chunk.css"
   },
   {
-    "revision": "a288d3ed358d6df20348a07430353ce9",
+    "revision": "36b287721b9be7b9e24bac6c49b498b7",
     "url": "/xor-demo/index.html"
   }
 ];

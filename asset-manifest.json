@@ -1,7 +1,7 @@
 {
   "main.css": "/xor-demo/static/css/main.d4e8dd66.chunk.css",
-  "main.js": "/xor-demo/static/js/main.ce74aaeb.chunk.js",
-  "main.js.map": "/xor-demo/static/js/main.ce74aaeb.chunk.js.map",
+  "main.js": "/xor-demo/static/js/main.0f19ff04.chunk.js",
+  "main.js.map": "/xor-demo/static/js/main.0f19ff04.chunk.js.map",
   "runtime~main.js": "/xor-demo/static/js/runtime~main.427d0f63.js",
   "runtime~main.js.map": "/xor-demo/static/js/runtime~main.427d0f63.js.map",
   "static/js/2.29cefbd0.chunk.js": "/xor-demo/static/js/2.29cefbd0.chunk.js",
@@ -9,7 +9,7 @@
   "static/js/3.7b78a1f0.chunk.js": "/xor-demo/static/js/3.7b78a1f0.chunk.js",
   "static/js/3.7b78a1f0.chunk.js.map": "/xor-demo/static/js/3.7b78a1f0.chunk.js.map",
   "index.html": "/xor-demo/index.html",
-  "precache-manifest.7e2318e3bc78b7391af473a6f76b041c.js": "/xor-demo/precache-manifest.7e2318e3bc78b7391af473a6f76b041c.js",
+  "precache-manifest.2d8eaeb29ae7f15e6b76da946812287a.js": "/xor-demo/precache-manifest.2d8eaeb29ae7f15e6b76da946812287a.js",
   "service-worker.js": "/xor-demo/service-worker.js",
   "static/css/main.d4e8dd66.chunk.css.map": "/xor-demo/static/css/main.d4e8dd66.chunk.css.map",
   "static/media/App.css": "/xor-demo/static/media/Motiva-Regular.f28762f1.otf"
