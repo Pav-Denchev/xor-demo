@@ -58,7 +58,7 @@ export class LetterCell extends React.Component {
     render() {
         return (
             <div style={{width: '41.66666666666667px', height:'54.16666666666667px', display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
-                <div style={{opacity: this.getOpacity(), color: this.getColor()}}>{this.props.col}</div>
+                <div style={{opacity: this.getOpacity(), color: this.getColor(), fontSize: '40px'}}>{this.props.col}</div>
             </div>
 
     )
