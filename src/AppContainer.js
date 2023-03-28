@@ -84,8 +84,8 @@ export class AppContainer extends React.Component {
                 const image1 = result[1];
                 const image2 = result[2];
                 let letters = [...this.state.letters];
-                const height = 910;
-                const width = 700;
+                const height = 1300;
+                const width = 1000;
                 const padding = 0;
                 const cellPxHeight = (height - (padding * 2)) / 24;
                 const cellPxWidth = (width - (padding * 2)) / 24;
@@ -153,7 +153,7 @@ export class AppContainer extends React.Component {
                                     }
                                 }
 
-                                if (grayscale <= this.state.threshhold) {
+                                if (parseInt(grayscale) <= parseInt(this.state.threshhold)) {
                                     belowThreshhold = true;
                                     letters[row][col] = '`';
                                     break;
