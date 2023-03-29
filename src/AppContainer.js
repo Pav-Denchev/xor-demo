@@ -3,9 +3,9 @@ import './App.css';
 import './textLayer';
 import { TextLayer } from "./textLayer";
 import Resizer from "react-image-file-resizer";
-import { ChromePicker } from "react-color";
 import * as htmlToImage from "html-to-image";
 import { Button, CircularProgress, TextField } from '@mui/material';
+import { AlphaPicker } from 'react-color';
 
 export class AppContainer extends React.Component {
 
@@ -15,21 +15,11 @@ export class AppContainer extends React.Component {
         this.state = {
             threshhold: 0,
             letters: [],
-            selectedItem: 0,
             backgroundImage: null,
-            fontDarkColor: { hex: '#000000', rgb: { r: 0, g: 0, b: 0 } },
-            fontLightColor: { hex: '#ffffff', rgb: { r: 255, g: 255, b: 255 } },
-            showDarkColorPicker: false,
-            showLightColorPicker: false,
-            targetBrightness: 127,
             loading: false,
             imageLoaded: false,
+            opacity: 1,
         };
-    }
-
-    componentDidMount() {
-        const letters = this.getRandomLetters();
-        this.setState({ fontDarkColor: { hex: '#000000', rgb: { r: 0, g: 0, b: 0 } }, letters: letters });
     }
 
     getRandomLetters = () => {
@@ -83,7 +73,10 @@ export class AppContainer extends React.Component {
                 const image = result[0];
                 const image1 = result[1];
                 const image2 = result[2];
-                let letters = [...this.state.letters];
+                let newLetters = new Array(24);
+                for (var h = 0; h < newLetters.length; h++) {
+                    newLetters[h] = new Array(24);
+                }
                 const height = 1300;
                 const width = 1000;
                 const padding = 0;
@@ -117,7 +110,7 @@ export class AppContainer extends React.Component {
 
                 let currRowPxCount = padding;
                 let currColPxCount = padding;
-                
+
                 for (let row = 0; row < 24; row++) {
                     for (let col = 0; col < 24; col++) {
                         let belowThreshhold = false;
@@ -155,8 +148,10 @@ export class AppContainer extends React.Component {
 
                                 if (parseInt(grayscale) <= parseInt(this.state.threshhold)) {
                                     belowThreshhold = true;
-                                    letters[row][col] = '`';
+                                    newLetters[row][col] = '~';
                                     break;
+                                } else {
+                                    newLetters[row][col] = this.state.letters[row][col];
                                 }
                             }
                             if (belowThreshhold) {
@@ -169,61 +164,11 @@ export class AppContainer extends React.Component {
                     currRowPxCount = padding;
                     currColPxCount += cellPxHeight;
                 }
-
-                resolve(letters);
+                resolve(newLetters);
             }).catch(() => {
                 reject();
             });
         })
-    };
-
-    processImage = (base64) => {
-
-        let brightnessMatrix = new Array(24);
-        for (var h = 0; h < brightnessMatrix.length; h++) {
-            brightnessMatrix[h] = new Array(24);
-        }
-
-        var image = new Image();
-        image.src = base64;
-        image.onload = () => {
-
-            var canvas = document.createElement('canvas');
-            canvas.width = image.width;
-            canvas.height = image.height;
-            var context = canvas.getContext('2d');
-            context.drawImage(image, 0, 0, 556, 696);
-            let cellsContrast = [];
-            var imageData = context.getImageData(38, 34, canvas.width - 76, canvas.height - 72);
-            for (let i = 0; i < 480; i = i + 20) {
-                for (let j = 0; j < 624; j = j + 26) {
-                    // analyzing a cell (getting average grayscale value of cell)
-                    var pixels = [];
-                    for (let m = 0; m < 20; m++) {
-                        for (let n = 0; n < 26; n++) {
-                            pixels.push(this.getPx(imageData, i + m, j + n));
-
-                        }
-                    }
-                    let cellBrightnessAverage = pixels.reduce((partialSum, pixel) => partialSum + this.rgb2grayscale(pixel.r, pixel.g, pixel.b), 0) / pixels.length;
-
-                    brightnessMatrix[Math.floor(i / 20)][Math.floor(j / 26)] = cellBrightnessAverage;
-                    cellsContrast.push(this.contrastCalc(this.state.targetBrightness, cellBrightnessAverage));
-                }
-            }
-            this.setState({ brightnessMatrix: brightnessMatrix, cellsContrast: cellsContrast });
-        }
-    };
-
-    median = (arr) => {
-        if (arr.length === 0) {
-            return; // 0.
-        }
-        arr.sort((a, b) => a - b); // 1.
-        const midpoint = Math.floor(arr.length / 2); // 2.
-        return arr.length % 2 === 1 ?
-            arr[midpoint] : // 3.1. If odd length, just take midpoint
-            (arr[midpoint - 1] + arr[midpoint]) / 2; // 3.2. If even length, take median of midpoints
     };
 
     getPx = (imageData, x, y) => {
@@ -251,8 +196,6 @@ export class AppContainer extends React.Component {
         };
     };
 
-    rgb2grayscale = (r, g, b) => { return 0.3 * r + 0.587 * g + 0.113 * b };
-
     fileChangedHandler(event) {
         var fileInput = false;
         if (event.target.files[0]) {
@@ -268,8 +211,8 @@ export class AppContainer extends React.Component {
                     100,
                     0,
                     (uri) => {
-                        this.setState({ backgroundImage: uri });
-                        this.processImage(uri);
+                        const letters = this.getRandomLetters();
+                        this.setState({ backgroundImage: uri, letters: letters });
                     },
                     "base64",
                     556,
@@ -281,40 +224,6 @@ export class AppContainer extends React.Component {
             }
         }
     }
-
-    handleChangeFontDarkColor = (color) => {
-        this.setState({ fontDarkColor: color });
-    };
-
-    handleChangeFontLightColor = (color) => {
-        this.setState({ fontLightColor: color });
-    };
-
-    onTargetBrightnessChange = (e) => {
-        let targetBrightness = e.target.value;
-        let cellsContrast = [];
-        let cells = this.state.brightnessMatrix;
-
-        if (cells) {
-            cells.forEach(column => {
-                column.forEach(cell => {
-                    cellsContrast.push(this.contrastCalc(targetBrightness, cell))
-                })
-            });
-        }
-
-        this.setState({ cellsContrast: cellsContrast, targetBrightness: targetBrightness });
-    };
-
-    contrastCalc = (fontBrightness, backgroundBrightness) => {
-        if (fontBrightness > backgroundBrightness) return ((fontBrightness / 255 + 0.05) / (backgroundBrightness / 255 + 0.05));
-        return ((backgroundBrightness / 255 + 0.05) / (fontBrightness / 255 + 0.05));
-    };
-
-    getAverageContrast = () => {
-        let cellsContrast = this.state.cellsContrast;
-        return cellsContrast && Math.round(cellsContrast.reduce((partialSum, a) => partialSum + a, 0) / cellsContrast.length * 1000) / 1000;
-    };
 
     getRandomLetter = () => {
         return String.fromCharCode(Math.floor(Math.random() * 26) + 65);
@@ -333,7 +242,7 @@ export class AppContainer extends React.Component {
                         </div>
                         <div style={{ width: '100%', height: '100%', position: 'absolute' }}>
                             <div style={{ width: '100%', height: '100%', fontFamily: 'Motiva' }}>
-                                <TextLayer useKr={true} letters={this.state.letters} brightnessMatrix={this.state.brightnessMatrix} targetBrightness={this.state.targetBrightness} fontLightColor={this.state.fontLightColor} fontDarkColor={this.state.fontDarkColor} />
+                                <TextLayer letters={this.state.letters} opacity={this.state.opacity} />
                             </div>
                         </div>
                     </div>
@@ -343,49 +252,16 @@ export class AppContainer extends React.Component {
                         </div>
                         <div style={{ width: '100%', height: '100%', position: 'absolute' }}>
                             <div style={{ width: '100%', height: '100%', fontFamily: 'Motiva' }}>
-                                <TextLayer letters={this.state.letters} brightnessMatrix={this.state.brightnessMatrix} targetBrightness={this.state.targetBrightness} fontLightColor={this.state.fontLightColor} fontDarkColor={this.state.fontDarkColor} />
+                                <TextLayer letters={this.state.letters} opacity={this.state.opacity} />
                             </div>
                         </div>
                     </div>
                     <div className='image2' style={{ width: '1000px', height: '1300px', position: 'relative', backgroundColor: 'white', display: `${this.state.loading ? 'block' : 'none'}` }}>
                         <div style={{ width: '100%', height: '100%', position: 'absolute' }}>
                             <div style={{ width: '100%', height: '100%', fontFamily: 'Motiva' }}>
-                                <TextLayer letters={this.state.letters} brightnessMatrix={this.state.brightnessMatrix} targetBrightness={this.state.targetBrightness} fontLightColor={this.state.fontLightColor} fontDarkColor={this.state.fontDarkColor} />
+                                <TextLayer letters={this.state.letters} opacity={this.state.opacity} />
                             </div>
                         </div>
-                    </div>
-                </div>
-                <div style={{ width: '100%', display: 'flex', alignItems: 'center', flexDirection: 'column', marginTop: '20px' }}>
-                    <div style={{ width: '100%', display: 'flex', alignItems: 'center', flexDirection: 'row-reverse', justifyContent: 'center' }}>
-                        <div style={{ width: '20px', height: '20px', border: '1px solid', backgroundColor: this.state.fontLightColor.hex }} onClick={() => { this.setState({ showLightColorPicker: !this.state.showLightColorPicker, showDarkColorPicker: false }) }}>
-                        </div>
-                        <div style={{ position: 'fixed', bottom: '10px', right: '10px' }}>
-                            {this.state.showLightColorPicker ? <ChromePicker width={'200px'} height={'200px'} disableAlpha={true} color={this.state.fontLightColor} onChangeComplete={this.handleChangeFontLightColor} /> : null}
-                        </div>
-                        <div>
-                            <input style={{ width: '500px' }}
-                                type='range'
-                                onChange={this.onTargetBrightnessChange}
-                                min={0}
-                                max={255}
-                                step={1}
-                                value={this.state.targetBrightness}
-                                className='custom-slider'>
-                            </input>
-                        </div>
-
-                        <div style={{ width: '20px', height: '20px', border: '1px solid', backgroundColor: this.state.fontDarkColor.hex }} onClick={() => { this.setState({ showDarkColorPicker: !this.state.showDarkColorPicker, showLightColorPicker: false }) }}>
-                        </div>
-                        <div style={{ position: 'fixed', bottom: '10px', right: '10px' }}>
-                            {this.state.showDarkColorPicker ? <ChromePicker width={'200px'} height={'200px'} disableAlpha={true} color={this.state.fontDarkColor} onChangeComplete={this.handleChangeFontDarkColor} /> : null}
-                        </div>
-
-                    </div>
-                    <div>
-                        {this.state.targetBrightness} <b>Kr</b>
-                    </div>
-                    <div>
-                        {this.getAverageContrast() ? 'Average Contrast: ' + this.getAverageContrast() : ''}
                     </div>
                 </div>
                 {
@@ -397,6 +273,15 @@ export class AppContainer extends React.Component {
                         </div>
                     )
                 }
+                <div style={{ position: 'relative', width: '316px', height: '16px', marginTop: '10px' }}>
+                    <AlphaPicker
+                        color={{ h: 250, s: 0, l: 0.2, a: this.state.opacity }}
+                        onChange={(value) => {
+                            const opacity = value.rgb.a;
+                            this.setState({ opacity });
+                        }}
+                    />
+                </div>
                 <TextField
                     margin='normal'
                     type="number"
