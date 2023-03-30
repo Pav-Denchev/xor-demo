@@ -292,14 +292,14 @@ export class AppContainer extends React.Component {
                         </div>
                         <div style={{ width: '100%', height: '100%', position: 'absolute' }}>
                             <div style={{ width: '100%', height: '100%', fontFamily: 'Motiva' }}>
-                                <TextLayer letters={this.state.letters} opacity={this.state.opacity} />
+                                <TextLayer letters={this.state.letters} />
                             </div>
                         </div>
                     </div>
                     <div className='image2' style={{ width: '1000px', height: '1300px', position: 'relative', backgroundColor: 'white', display: `${this.state.loading ? 'block' : 'none'}` }}>
                         <div style={{ width: '100%', height: '100%', position: 'absolute' }}>
                             <div style={{ width: '100%', height: '100%', fontFamily: 'Motiva' }}>
-                                <TextLayer letters={this.state.letters} opacity={this.state.opacity} />
+                                <TextLayer letters={this.state.letters} />
                             </div>
                         </div>
                     </div>
@@ -315,6 +315,7 @@ export class AppContainer extends React.Component {
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center' }}>
                         <TextField
+                            style={{ width: '75px' }}
                             type="number"
                             value={this.state.opacityInputValue}
                             inputProps={{ min: "1", max: "100", step: "1" }}
