@@ -21,6 +21,7 @@ export class AppContainer extends React.Component {
             opacity: 1,
             opacityInputValue: 100,
             color: { hex: '#000000', rgb: { r: 0, g: 0, b: 0 } },
+            minPixelsBelowThreshhold: 5,
         };
     }
 
@@ -109,6 +110,12 @@ export class AppContainer extends React.Component {
                 for (var h = 0; h < newLetters.length; h++) {
                     newLetters[h] = new Array(24);
                 }
+                let minPixelsBelowThreshhold;
+                if (!this.state.minPixelsBelowThreshhold) {
+                    minPixelsBelowThreshhold = 5;
+                } else {
+                    minPixelsBelowThreshhold = this.state.minPixelsBelowThreshhold;
+                }
                 const height = 1300;
                 const width = 1000;
                 const padding = 0;
@@ -146,6 +153,7 @@ export class AppContainer extends React.Component {
                 for (let row = 0; row < 24; row++) {
                     for (let col = 0; col < 24; col++) {
                         let belowThreshhold = false;
+                        let pixelsBelowThreshhold = 0;
                         let darkestPixel = {
                             row,
                             col,
@@ -179,6 +187,10 @@ export class AppContainer extends React.Component {
                                 }
 
                                 if (parseInt(grayscale) <= parseInt(this.state.threshhold)) {
+                                    pixelsBelowThreshhold++;
+                                }
+
+                                if (pixelsBelowThreshhold >= minPixelsBelowThreshhold) {
                                     belowThreshhold = true;
                                     newLetters[row][col] = '~';
                                     break;
@@ -328,19 +340,34 @@ export class AppContainer extends React.Component {
                     </div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', marginTop: '10px', marginBottom: '10px' }}>
-                    <TextField
-                        margin='normal'
-                        type="number"
-                        id="outlined-basic"
-                        label="Threshhold"
-                        variant="outlined"
-                        value={this.state.threshhold}
-                        onChange={(event) => {
-                            if (event.target.value >= 0 && event.target.value <= 255) {
-                                this.setState({ threshhold: event.target.value });
-                            }
-                        }}
-                    />
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                        <TextField
+                            margin='normal'
+                            type="number"
+                            id="outlined-basic"
+                            label="Threshhold"
+                            variant="outlined"
+                            value={this.state.threshhold}
+                            onChange={(event) => {
+                                if (event.target.value >= 0 && event.target.value <= 255) {
+                                    this.setState({ threshhold: event.target.value });
+                                }
+                            }}
+                        />
+                        <TextField
+                            margin='normal'
+                            type="number"
+                            id="outlined-basic"
+                            label="Pixels below threshhold"
+                            variant="outlined"
+                            value={this.state.minPixelsBelowThreshhold}
+                            onChange={(event) => {
+                                if (event.target.value >= 0 && event.target.value <= 200) {
+                                    this.setState({ minPixelsBelowThreshhold: event.target.value });
+                                }
+                            }}
+                        />
+                    </div>
                     <div style={{ marginLeft: '40px' }}>
                         <ChromePicker width={'200px'} height={'200px'} disableAlpha={true} color={this.state.color} onChangeComplete={(color) => { this.setState({ color }) }} />
                     </div>
