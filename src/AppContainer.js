@@ -19,7 +19,38 @@ export class AppContainer extends React.Component {
             loading: false,
             imageLoaded: false,
             opacity: 1,
+            opacityInputValue: 100,
         };
+    }
+
+    componentDidMount() {
+        const opacityInputValue = Math.round(this.state.opacity * 100);
+        this.setState({ opacityInputValue });
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        if (prevState.opacity !== this.state.opacity) {
+            this.setState({ opacityInputValue: Math.round(this.state.opacity * 100) });
+        }
+    }
+
+    handleOpacityChange = (value) => {
+        const opacity = value.rgb.a;
+        this.setState({ opacity });
+    }
+
+    handleOpacityInputChange = (event) => {
+        const inputValue = parseInt(event.target.value);
+
+        if (inputValue < 1 || inputValue > 100 || isNaN(inputValue)) {
+            return;
+        }
+
+        this.handleOpacityChange({ rgb: { r: 0, g: 0, b: 0, a: inputValue / 100 } });
+    }
+
+    selectInputValue = (field) => {
+        field.target.select();
     }
 
     getRandomLetters = () => {
@@ -231,7 +262,16 @@ export class AppContainer extends React.Component {
 
     render() {
         return (
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: 'auto', flexDirection: 'column', paddingTop: '10px', paddingBottom: '10px', }} className="App">
+            <div style={{ position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: 'auto', flexDirection: 'column', paddingTop: '10px', paddingBottom: '10px', }} className="App">
+                {
+                    this.state.loading && (
+                        <div style={{ position:'absolute', backgroundColor: 'white', zIndex: 999, width: '100%', height: '100%' }}>
+                            <div style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
+                                <CircularProgress />
+                            </div>
+                        </div>
+                    )
+                }
                 <div style={{ marginBottom: '10px' }}>
                     <input type={"file"} id={'imageUpload'} name={'imageUpload'} onChange={this.fileChangedHandler} />
                 </div>
@@ -264,23 +304,26 @@ export class AppContainer extends React.Component {
                         </div>
                     </div>
                 </div>
-                {
-                    this.state.loading && (
-                        <div style={{ backgroundColor: 'white', zIndex: 999, position: 'absolute', width: '100%', height: '100%' }}>
-                            <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
-                                <CircularProgress />
-                            </div>
-                        </div>
-                    )
-                }
-                <div style={{ position: 'relative', width: '316px', height: '16px', marginTop: '10px' }}>
-                    <AlphaPicker
-                        color={{ h: 250, s: 0, l: 0.2, a: this.state.opacity }}
-                        onChange={(value) => {
-                            const opacity = value.rgb.a;
-                            this.setState({ opacity });
-                        }}
-                    />
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '25%', marginTop: '10px' }}>
+                    <div style={{ position: 'relative', width: '316px', height: '16px' }}>
+                        <AlphaPicker
+                            color={{ h: 250, s: 0, l: 0.2, a: this.state.opacity }}
+                            onChange={(value) => {
+                                this.handleOpacityChange(value);
+                            }}
+                        />
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                        <TextField
+                            type="number"
+                            value={this.state.opacityInputValue}
+                            inputProps={{ min: "1", max: "100", step: "1" }}
+                            onChange={this.handleOpacityInputChange}
+                            onFocus={this.selectInputValue}
+                            onClick={this.selectInputValue}
+                        />
+                        <span style={{ marginLeft: 10 }}>%</span>
+                    </div>
                 </div>
                 <TextField
                     margin='normal'
