@@ -12,7 +12,7 @@ export class TextLayer extends React.Component {
         return (
             <div style={{display: 'flex',  flexDirection: 'column', flexWrap: 'wrap', width: '100%', height: '100%'}} className="TextContainer">
                 {this.props.letters && this.props.letters.map(((letterRow, index) =>  {
-                    return <LetterRow row={letterRow} key={index} opacity={this.props.opacity} />}))
+                    return <LetterRow color={this.props.color} row={letterRow} key={index} opacity={this.props.opacity} />}))
                 }
             </div>
         )

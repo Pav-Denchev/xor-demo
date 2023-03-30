@@ -5,7 +5,7 @@ import { TextLayer } from "./textLayer";
 import Resizer from "react-image-file-resizer";
 import * as htmlToImage from "html-to-image";
 import { Button, CircularProgress, TextField } from '@mui/material';
-import { AlphaPicker } from 'react-color';
+import { AlphaPicker, ChromePicker } from 'react-color';
 
 export class AppContainer extends React.Component {
 
@@ -20,6 +20,7 @@ export class AppContainer extends React.Component {
             imageLoaded: false,
             opacity: 1,
             opacityInputValue: 100,
+            color: { hex: '#000000', rgb: { r: 0, g: 0, b: 0 } },
         };
     }
 
@@ -265,7 +266,7 @@ export class AppContainer extends React.Component {
             <div style={{ position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: 'auto', flexDirection: 'column', paddingTop: '10px', paddingBottom: '10px', }} className="App">
                 {
                     this.state.loading && (
-                        <div style={{ position:'absolute', backgroundColor: 'white', zIndex: 999, width: '100%', height: '100%' }}>
+                        <div style={{ position: 'absolute', backgroundColor: 'white', zIndex: 999, width: '100%', height: '100%' }}>
                             <div style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
                                 <CircularProgress />
                             </div>
@@ -282,11 +283,11 @@ export class AppContainer extends React.Component {
                         </div>
                         <div style={{ width: '100%', height: '100%', position: 'absolute' }}>
                             <div style={{ width: '100%', height: '100%', fontFamily: 'Motiva' }}>
-                                <TextLayer letters={this.state.letters} opacity={this.state.opacity} />
+                                <TextLayer letters={this.state.letters} color={this.state.color.hex} opacity={this.state.opacity} />
                             </div>
                         </div>
                     </div>
-                    <div className='image1' style={{ width: '1000px', height: '1300px', position: 'relative', display: `${this.state.loading ? 'block' : 'none'}` }}>
+                    <div className='image1' style={{ width: '1000px', height: '1300px', position: 'relative', display: `${this.state.loading ? 'block' : 'block'}` }}>
                         <div style={{ width: '100%', height: '100%', position: 'absolute' }}>
                             <img alt={""} style={{ width: '1000px', height: '1300px', }} src={this.state.backgroundImage} />
                         </div>
@@ -296,7 +297,7 @@ export class AppContainer extends React.Component {
                             </div>
                         </div>
                     </div>
-                    <div className='image2' style={{ width: '1000px', height: '1300px', position: 'relative', backgroundColor: 'white', display: `${this.state.loading ? 'block' : 'none'}` }}>
+                    <div className='image2' style={{ width: '1000px', height: '1300px', position: 'relative', backgroundColor: 'white', display: `${this.state.loading ? 'block' : 'block'}` }}>
                         <div style={{ width: '100%', height: '100%', position: 'absolute' }}>
                             <div style={{ width: '100%', height: '100%', fontFamily: 'Motiva' }}>
                                 <TextLayer letters={this.state.letters} />
@@ -304,7 +305,7 @@ export class AppContainer extends React.Component {
                         </div>
                     </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '25%', marginTop: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', width: '25%', marginTop: '10px' }}>
                     <div style={{ position: 'relative', width: '316px', height: '16px' }}>
                         <AlphaPicker
                             color={{ h: 250, s: 0, l: 0.2, a: this.state.opacity }}
@@ -313,7 +314,7 @@ export class AppContainer extends React.Component {
                             }}
                         />
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', marginLeft: 20 }}>
                         <TextField
                             style={{ width: '75px' }}
                             type="number"
@@ -326,19 +327,24 @@ export class AppContainer extends React.Component {
                         <span style={{ marginLeft: 10 }}>%</span>
                     </div>
                 </div>
-                <TextField
-                    margin='normal'
-                    type="number"
-                    id="outlined-basic"
-                    label="Threshhold"
-                    variant="outlined"
-                    value={this.state.threshhold}
-                    onChange={(event) => {
-                        if (event.target.value >= 0 && event.target.value <= 255) {
-                            this.setState({ threshhold: event.target.value });
-                        }
-                    }}
-                />
+                <div style={{ display: 'flex', alignItems: 'center', marginTop: '10px', marginBottom: '10px' }}>
+                    <TextField
+                        margin='normal'
+                        type="number"
+                        id="outlined-basic"
+                        label="Threshhold"
+                        variant="outlined"
+                        value={this.state.threshhold}
+                        onChange={(event) => {
+                            if (event.target.value >= 0 && event.target.value <= 255) {
+                                this.setState({ threshhold: event.target.value });
+                            }
+                        }}
+                    />
+                    <div style={{ marginLeft: '40px' }}>
+                        <ChromePicker width={'200px'} height={'200px'} disableAlpha={true} color={this.state.color} onChangeComplete={(color) => { this.setState({ color }) }} />
+                    </div>
+                </div>
                 <div style={{ display: 'flex' }}>
                     <Button
                         style={{ marginRight: 5 }}
