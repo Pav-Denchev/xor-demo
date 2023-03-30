@@ -362,8 +362,13 @@ export class AppContainer extends React.Component {
                             variant="outlined"
                             value={this.state.minPixelsBelowThreshhold}
                             onChange={(event) => {
-                                if (event.target.value >= 0 && event.target.value <= 200) {
+                                if ((event.target.value > 0 && event.target.value <= 200) || event.target.value === '') {
                                     this.setState({ minPixelsBelowThreshhold: event.target.value });
+                                }
+                            }}
+                            onBlur={() => {
+                                if (this.state.minPixelsBelowThreshhold === '') {
+                                    this.setState({ minPixelsBelowThreshhold: 5 });
                                 }
                             }}
                         />
