@@ -1,5 +1,9 @@
 self.__precacheManifest = [
   {
+    "revision": "0215a6fdb6f37b4307f4126a89d2aaef",
+    "url": "/xor-demo/static/media/Motiva.Art-Medium.0215a6fd.otf"
+  },
+  {
     "revision": "f28762f1315e03569f553eaa3c6e691e",
     "url": "/xor-demo/static/media/Motiva-Regular.f28762f1.otf"
   },
@@ -8,8 +12,8 @@ self.__precacheManifest = [
     "url": "/xor-demo/static/js/runtime~main.427d0f63.js"
   },
   {
-    "revision": "6d83d3621df97036d11c",
-    "url": "/xor-demo/static/js/main.11b33c86.chunk.js"
+    "revision": "bf1b1d3a8e35a2bda42d",
+    "url": "/xor-demo/static/js/main.8c224f59.chunk.js"
   },
   {
     "revision": "1dfd17ea1ae2264110f1",
@@ -20,11 +24,11 @@ self.__precacheManifest = [
     "url": "/xor-demo/static/js/2.405a926b.chunk.js"
   },
   {
-    "revision": "6d83d3621df97036d11c",
-    "url": "/xor-demo/static/css/main.922e30c9.chunk.css"
+    "revision": "bf1b1d3a8e35a2bda42d",
+    "url": "/xor-demo/static/css/main.4c6d9171.chunk.css"
   },
   {
-    "revision": "d2e6f54860fe6d5899a89484627e3a5a",
+    "revision": "757f2a82fbe508e70af0d9bca1bda8b6",
     "url": "/xor-demo/index.html"
   }
 ];
