@@ -12,8 +12,8 @@ self.__precacheManifest = [
     "url": "/xor-demo/static/js/runtime~main.427d0f63.js"
   },
   {
-    "revision": "bf1b1d3a8e35a2bda42d",
-    "url": "/xor-demo/static/js/main.8c224f59.chunk.js"
+    "revision": "e08e0b4edfc86bf54143",
+    "url": "/xor-demo/static/js/main.cb2a5b97.chunk.js"
   },
   {
     "revision": "1dfd17ea1ae2264110f1",
@@ -24,11 +24,11 @@ self.__precacheManifest = [
     "url": "/xor-demo/static/js/2.405a926b.chunk.js"
   },
   {
-    "revision": "bf1b1d3a8e35a2bda42d",
+    "revision": "e08e0b4edfc86bf54143",
     "url": "/xor-demo/static/css/main.4c6d9171.chunk.css"
   },
   {
-    "revision": "757f2a82fbe508e70af0d9bca1bda8b6",
+    "revision": "7f9932b282db0a4be1bbf9fc89f96ef6",
     "url": "/xor-demo/index.html"
   }
 ];
