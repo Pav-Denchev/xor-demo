@@ -287,7 +287,7 @@ export class AppContainer extends React.Component {
                             </div>
                         </div>
                     </div>
-                    <div className='image1' style={{ width: '1000px', height: '1300px', position: 'relative', display: `${this.state.loading ? 'block' : 'block'}` }}>
+                    <div className='image1' style={{ width: '1000px', height: '1300px', position: 'relative', display: `${this.state.loading ? 'block' : 'none'}` }}>
                         <div style={{ width: '100%', height: '100%', position: 'absolute' }}>
                             <img alt={""} style={{ width: '1000px', height: '1300px', }} src={this.state.backgroundImage} />
                         </div>
@@ -297,7 +297,7 @@ export class AppContainer extends React.Component {
                             </div>
                         </div>
                     </div>
-                    <div className='image2' style={{ width: '1000px', height: '1300px', position: 'relative', backgroundColor: 'white', display: `${this.state.loading ? 'block' : 'block'}` }}>
+                    <div className='image2' style={{ width: '1000px', height: '1300px', position: 'relative', backgroundColor: 'white', display: `${this.state.loading ? 'block' : 'none'}` }}>
                         <div style={{ width: '100%', height: '100%', position: 'absolute' }}>
                             <div style={{ width: '100%', height: '100%', fontFamily: 'Motiva' }}>
                                 <TextLayer letters={this.state.letters} />
