@@ -282,7 +282,7 @@ export class AppContainer extends React.Component {
                             <img alt={""} style={{ width: '1000px', height: '1300px', }} src={this.state.backgroundImage} />
                         </div>
                         <div style={{ width: '100%', height: '100%', position: 'absolute' }}>
-                            <div style={{ width: '100%', height: '100%', fontFamily: 'Motiva' }}>
+                            <div style={{ width: '100%', height: '100%' }}>
                                 <TextLayer letters={this.state.letters} color={this.state.color.hex} opacity={this.state.opacity} />
                             </div>
                         </div>
@@ -292,14 +292,14 @@ export class AppContainer extends React.Component {
                             <img alt={""} style={{ width: '1000px', height: '1300px', }} src={this.state.backgroundImage} />
                         </div>
                         <div style={{ width: '100%', height: '100%', position: 'absolute' }}>
-                            <div style={{ width: '100%', height: '100%', fontFamily: 'Motiva' }}>
+                            <div style={{ width: '100%', height: '100%' }}>
                                 <TextLayer letters={this.state.letters} />
                             </div>
                         </div>
                     </div>
                     <div className='image2' style={{ width: '1000px', height: '1300px', position: 'relative', backgroundColor: 'white', display: `${this.state.loading ? 'block' : 'none'}` }}>
                         <div style={{ width: '100%', height: '100%', position: 'absolute' }}>
-                            <div style={{ width: '100%', height: '100%', fontFamily: 'Motiva' }}>
+                            <div style={{ width: '100%', height: '100%' }}>
                                 <TextLayer letters={this.state.letters} />
                             </div>
                         </div>
