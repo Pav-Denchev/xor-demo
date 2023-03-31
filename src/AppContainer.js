@@ -186,7 +186,7 @@ export class AppContainer extends React.Component {
                                     }
                                 }
 
-                                if (parseInt(grayscale) <= parseInt(this.state.threshhold)) {
+                                if (grayscale <= parseFloat(this.state.threshhold)) {
                                     pixelsBelowThreshhold++;
                                 }
 
