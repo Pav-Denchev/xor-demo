@@ -10,7 +10,7 @@ export class LetterRow extends React.Component {
 
     render() {
         return (
-            <div style={{width: '1000px', height:'54.16666666666667px', display: 'flex', flexDirection: 'row'}}>
+            <div style={{width: '500px', height:'27.08333333333333px', display: 'flex', flexDirection: 'row'}}>
                 {this.props.row && this.props.row.map(((letter, index) =>  {
                     return <LetterCell color={this.props.color} col={letter} key={index} opacity={this.props.opacity} />}))
                 }

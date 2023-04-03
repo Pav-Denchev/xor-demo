@@ -22,6 +22,7 @@ export class AppContainer extends React.Component {
             opacityInputValue: 100,
             color: { hex: '#000000', rgb: { r: 0, g: 0, b: 0 } },
             minPixelsBelowThreshhold: 5,
+            blockedCells: 0,
         };
     }
 
@@ -71,7 +72,7 @@ export class AppContainer extends React.Component {
         return 0.2126 * r + 0.7152 * g + 0.0722 * b;
     };
 
-    calcAbsolutePixel = (pixel, pixel1, pixel2) => {
+    calcDarkPixel = (pixel, pixel1, pixel2) => {
         const absR = Math.abs(Math.abs(pixel.r - pixel1.r) - pixel2.r);
         const absG = Math.abs(Math.abs(pixel.g - pixel1.g) - pixel2.g);
         const absB = Math.abs(Math.abs(pixel.b - pixel1.b) - pixel2.b);
@@ -83,17 +84,31 @@ export class AppContainer extends React.Component {
         };
     };
 
+    calcBrightPixel = (darkPixel, pixel3) => {
+        const brightPixelR = Math.abs(darkPixel - pixel3.r);
+        const brightPixelG = Math.abs(darkPixel - pixel3.g);
+        const brightPixelB = Math.abs(darkPixel - pixel3.b);
+
+        return {
+            r: brightPixelR,
+            g: brightPixelG,
+            b: brightPixelB
+        };
+    };
+
     blockCellsBelowThreshhold = async () => {
         return new Promise(async (resolve, reject) => {
             const imageHtml = document.querySelector(".image");
             const image1Html = document.querySelector(".image1");
             const image2Html = document.querySelector(".image2");
+            const image3Html = document.querySelector(".image3");
 
             const imageBase64 = await htmlToImage.toPng(imageHtml, { quality: 1 });
             const image1Base64 = await htmlToImage.toPng(image1Html, { quality: 1 });
             const image2Base64 = await htmlToImage.toPng(image2Html, { quality: 1 });
+            const image3Base64 = await htmlToImage.toPng(image3Html, { quality: 1 });
 
-            const imageUrls = [imageBase64, image1Base64, image2Base64];
+            const imageUrls = [imageBase64, image1Base64, image2Base64, image3Base64];
 
             Promise.all(imageUrls.map(e =>
                 new Promise((resolve, reject) => {
@@ -106,6 +121,7 @@ export class AppContainer extends React.Component {
                 const image = result[0];
                 const image1 = result[1];
                 const image2 = result[2];
+                const image3 = result[3];
                 let newLetters = new Array(24);
                 for (var h = 0; h < newLetters.length; h++) {
                     newLetters[h] = new Array(24);
@@ -116,8 +132,8 @@ export class AppContainer extends React.Component {
                 } else {
                     minPixelsBelowThreshhold = this.state.minPixelsBelowThreshhold;
                 }
-                const height = 1300;
-                const width = 1000;
+                const height = 650;
+                const width = 500;
                 const padding = 0;
                 const cellPxHeight = (height - (padding * 2)) / 24;
                 const cellPxWidth = (width - (padding * 2)) / 24;
@@ -125,6 +141,7 @@ export class AppContainer extends React.Component {
                 const canvas = document.createElement('canvas');
                 const canvas1 = document.createElement('canvas');
                 const canvas2 = document.createElement('canvas');
+                const canvas3 = document.createElement('canvas');
 
                 canvas.width = width;
                 canvas.height = height;
@@ -135,20 +152,27 @@ export class AppContainer extends React.Component {
                 canvas2.width = width;
                 canvas2.height = height;
 
+                canvas3.width = width;
+                canvas3.height = height;
+
                 const context = canvas.getContext('2d');
                 const context1 = canvas1.getContext('2d');
                 const context2 = canvas2.getContext('2d');
+                const context3 = canvas3.getContext('2d');
 
                 context.drawImage(image, 0, 0, width, height);
                 context1.drawImage(image1, 0, 0, width, height);
                 context2.drawImage(image2, 0, 0, width, height);
+                context3.drawImage(image3, 0, 0, width, height);
 
                 const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
                 const imageData1 = context1.getImageData(0, 0, canvas1.width, canvas1.height);
                 const imageData2 = context2.getImageData(0, 0, canvas2.width, canvas2.height);
+                const imageData3 = context3.getImageData(0, 0, canvas3.width, canvas3.height);
 
                 let currRowPxCount = padding;
                 let currColPxCount = padding;
+                let blockedCells = 0;
 
                 for (let row = 0; row < 24; row++) {
                     for (let col = 0; col < 24; col++) {
@@ -171,8 +195,11 @@ export class AppContainer extends React.Component {
 
                                 const pixel = this.getPx(imageData, Math.round(currRowPxCount + m), Math.round(currColPxCount + n));
                                 const pixel1 = this.getPx(imageData1, Math.round(currRowPxCount + m), Math.round(currColPxCount + n));
+                                const pixel3 = this.getPx(imageData3, Math.round(currRowPxCount + m), Math.round(currColPxCount + n));
 
-                                const absPixel = this.calcAbsolutePixel(pixel, pixel1, pixel2);
+                                const absPixel = this.calcDarkPixel(pixel, pixel1, pixel2, pixel3);
+
+                                const brightPixel = this.calcBrightPixel(absPixel, pixel3);
 
                                 const grayscale = this.rgbToGrayscale(absPixel.r, absPixel.g, absPixel.b);
 
@@ -193,6 +220,7 @@ export class AppContainer extends React.Component {
                                 if (pixelsBelowThreshhold >= minPixelsBelowThreshhold) {
                                     belowThreshhold = true;
                                     newLetters[row][col] = '~';
+                                    blockedCells++;
                                     break;
                                 } else {
                                     newLetters[row][col] = this.state.letters[row][col];
@@ -208,6 +236,7 @@ export class AppContainer extends React.Component {
                     currRowPxCount = padding;
                     currColPxCount += cellPxHeight;
                 }
+                this.setState({ blockedCells });
                 resolve(newLetters);
             }).catch(() => {
                 reject();
@@ -288,10 +317,13 @@ export class AppContainer extends React.Component {
                 <div style={{ marginBottom: '10px' }}>
                     <input type={"file"} id={'imageUpload'} name={'imageUpload'} onChange={this.fileChangedHandler} />
                 </div>
+                <div style={{ marginBottom: '10px' }}>
+                    Blocked cells {this.state.blockedCells}
+                </div>
                 <div style={{ display: 'flex' }}>
-                    <div className='image' style={{ width: '1000px', height: '1300px', position: 'relative' }}>
+                    <div className='image' style={{ width: '500px', height: '650px', position: 'relative' }}>
                         <div style={{ width: '100%', height: '100%', position: 'absolute' }}>
-                            <img alt={""} style={{ width: '1000px', height: '1300px', }} src={this.state.backgroundImage} />
+                            <img alt={""} style={{ width: '500px', height: '650px' }} src={this.state.backgroundImage} />
                         </div>
                         <div style={{ width: '100%', height: '100%', position: 'absolute' }}>
                             <div style={{ width: '100%', height: '100%' }}>
@@ -299,9 +331,9 @@ export class AppContainer extends React.Component {
                             </div>
                         </div>
                     </div>
-                    <div className='image1' style={{ width: '1000px', height: '1300px', position: 'relative', display: `${this.state.loading ? 'block' : 'none'}` }}>
+                    <div className='image1' style={{ width: '500px', height: '650px', position: 'relative', display: `${this.state.loading ? 'block' : 'none'}` }}>
                         <div style={{ width: '100%', height: '100%', position: 'absolute' }}>
-                            <img alt={""} style={{ width: '1000px', height: '1300px', }} src={this.state.backgroundImage} />
+                            <img alt={""} style={{ width: '500px', height: '650px' }} src={this.state.backgroundImage} />
                         </div>
                         <div style={{ width: '100%', height: '100%', position: 'absolute' }}>
                             <div style={{ width: '100%', height: '100%' }}>
@@ -309,10 +341,17 @@ export class AppContainer extends React.Component {
                             </div>
                         </div>
                     </div>
-                    <div className='image2' style={{ width: '1000px', height: '1300px', position: 'relative', backgroundColor: 'white', display: `${this.state.loading ? 'block' : 'none'}` }}>
+                    <div className='image2' style={{ width: '500px', height: '650px', position: 'relative', backgroundColor: 'white', display: `${this.state.loading ? 'block' : 'none'}` }}>
                         <div style={{ width: '100%', height: '100%', position: 'absolute' }}>
                             <div style={{ width: '100%', height: '100%' }}>
                                 <TextLayer letters={this.state.letters} />
+                            </div>
+                        </div>
+                    </div>
+                    <div className='image3' style={{ width: '500px', height: '650px', position: 'relative', backgroundColor: 'black', display: `${this.state.loading ? 'block' : 'none'}` }}>
+                        <div style={{ width: '100%', height: '100%', position: 'absolute' }}>
+                            <div style={{ width: '100%', height: '100%' }}>
+                                <TextLayer letters={this.state.letters} color={'#ffffff'} />
                             </div>
                         </div>
                     </div>
@@ -394,7 +433,7 @@ export class AppContainer extends React.Component {
                         style={{ marginLeft: 5 }}
                         onClick={() => {
                             const result = this.getRandomLetters();
-                            this.setState({ letters: result });
+                            this.setState({ letters: result, blockedCells: 0 });
                         }}
                         variant='outlined'
                     >
