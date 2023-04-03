@@ -13,7 +13,7 @@ export class AppContainer extends React.Component {
         super(props);
         this.fileChangedHandler = this.fileChangedHandler.bind(this);
         this.state = {
-            threshhold: 0,
+            threshold: 0,
             letters: [],
             backgroundImage: null,
             loading: false,
@@ -21,7 +21,7 @@ export class AppContainer extends React.Component {
             opacity: 1,
             opacityInputValue: 100,
             color: { hex: '#000000', rgb: { r: 0, g: 0, b: 0 } },
-            minPixelsBelowThreshhold: 5,
+            minPixelsBelowThreshold: 1,
             blockedCells: 0,
         };
     }
@@ -96,7 +96,7 @@ export class AppContainer extends React.Component {
         };
     };
 
-    blockCellsBelowThreshhold = async () => {
+    blockCellsBelowThreshold = async () => {
         return new Promise(async (resolve, reject) => {
             const imageHtml = document.querySelector(".image");
             const image1Html = document.querySelector(".image1");
@@ -126,11 +126,11 @@ export class AppContainer extends React.Component {
                 for (var h = 0; h < newLetters.length; h++) {
                     newLetters[h] = new Array(24);
                 }
-                let minPixelsBelowThreshhold;
-                if (!this.state.minPixelsBelowThreshhold) {
-                    minPixelsBelowThreshhold = 5;
+                let minPixelsBelowThreshold;
+                if (!this.state.minPixelsBelowThreshold) {
+                    minPixelsBelowThreshold = 1;
                 } else {
-                    minPixelsBelowThreshhold = this.state.minPixelsBelowThreshhold;
+                    minPixelsBelowThreshold = this.state.minPixelsBelowThreshold;
                 }
                 const height = 650;
                 const width = 500;
@@ -176,8 +176,8 @@ export class AppContainer extends React.Component {
 
                 for (let row = 0; row < 24; row++) {
                     for (let col = 0; col < 24; col++) {
-                        let belowThreshhold = false;
-                        let pixelsBelowThreshhold = 0;
+                        let belowThreshold = false;
+                        let pixelsBelowThreshold = 0;
                         let darkestPixel = {
                             row,
                             col,
@@ -213,12 +213,12 @@ export class AppContainer extends React.Component {
                                     }
                                 }
 
-                                if (grayscale <= parseFloat(this.state.threshhold)) {
-                                    pixelsBelowThreshhold++;
+                                if (grayscale <= parseFloat(this.state.threshold)) {
+                                    pixelsBelowThreshold++;
                                 }
 
-                                if (pixelsBelowThreshhold >= minPixelsBelowThreshhold) {
-                                    belowThreshhold = true;
+                                if (pixelsBelowThreshold >= minPixelsBelowThreshold) {
+                                    belowThreshold = true;
                                     newLetters[row][col] = '~';
                                     blockedCells++;
                                     break;
@@ -226,7 +226,7 @@ export class AppContainer extends React.Component {
                                     newLetters[row][col] = this.state.letters[row][col];
                                 }
                             }
-                            if (belowThreshhold) {
+                            if (belowThreshold) {
                                 break;
                             }
                         }
@@ -356,7 +356,7 @@ export class AppContainer extends React.Component {
                         </div>
                     </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', width: '25%', marginTop: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', marginTop: '10px' }}>
                     <div style={{ position: 'relative', width: '316px', height: '16px' }}>
                         <AlphaPicker
                             color={{ h: 250, s: 0, l: 0.2, a: this.state.opacity }}
@@ -378,36 +378,18 @@ export class AppContainer extends React.Component {
                         <span style={{ marginLeft: 10 }}>%</span>
                     </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', marginTop: '10px', marginBottom: '10px' }}>
+                <div style={{ display: 'flex', marginTop: '10px', marginBottom: '10px' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                         <TextField
                             margin='normal'
                             type="number"
                             id="outlined-basic"
-                            label="Threshhold"
+                            label="Darkness Threshold (0 - 255)"
                             variant="outlined"
-                            value={this.state.threshhold}
+                            value={this.state.threshold}
                             onChange={(event) => {
                                 if (event.target.value >= 0 && event.target.value <= 255) {
-                                    this.setState({ threshhold: event.target.value });
-                                }
-                            }}
-                        />
-                        <TextField
-                            margin='normal'
-                            type="number"
-                            id="outlined-basic"
-                            label="Pixels below threshhold"
-                            variant="outlined"
-                            value={this.state.minPixelsBelowThreshhold}
-                            onChange={(event) => {
-                                if ((event.target.value > 0 && event.target.value <= 200) || event.target.value === '') {
-                                    this.setState({ minPixelsBelowThreshhold: event.target.value });
-                                }
-                            }}
-                            onBlur={() => {
-                                if (this.state.minPixelsBelowThreshhold === '') {
-                                    this.setState({ minPixelsBelowThreshhold: 5 });
+                                    this.setState({ threshold: event.target.value });
                                 }
                             }}
                         />
@@ -421,7 +403,7 @@ export class AppContainer extends React.Component {
                         style={{ marginRight: 5 }}
                         onClick={async () => {
                             this.setState({ loading: true });
-                            const result = await this.blockCellsBelowThreshhold();
+                            const result = await this.blockCellsBelowThreshold();
                             this.setState({ loading: false, letters: result });
                         }}
                         variant='outlined'
